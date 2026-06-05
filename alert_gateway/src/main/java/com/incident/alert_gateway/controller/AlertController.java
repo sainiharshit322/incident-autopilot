@@ -2,6 +2,8 @@ package com.incident.alert_gateway.controller;
 
 import com.incident.alert_gateway.model.AlertPayload;
 import com.incident.alert_gateway.model.Incident;
+import com.incident.alert_gateway.service.AgentDispatchService;
+import com.incident.alert_gateway.service.AlertDeduplicationService;
 import com.incident.alert_gateway.service.IncidentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +21,30 @@ import java.util.Map;
 public class AlertController {
 
     private final IncidentService incidentService;
+    private final AlertDeduplicationService deduplicationService;
+    private final AgentDispatchService agentDispatchService;
 
     @PostMapping("/alerts/webhook")
-    public ResponseEntity<Map<String, String>> receiveAlert(
-            @Valid
-            @RequestBody AlertPayload payload){
+    public ResponseEntity<Map<String, String>> receiveAlert(@Valid @RequestBody AlertPayload payload) {
 
-        log.info("Received Alert: {} | severity: {} | service: {}", payload.alertName(), payload.severity(), payload.service());
+        log.info("Received alert: {} | severity: {} | service: {}", payload.alertName(), payload.severity(), payload.service());
+
+        if (!deduplicationService.isNew(payload.alertName(), payload.service())) {
+            return ResponseEntity.accepted()
+                    .body(Map.of("status", "deduplicated", "message", "Alert suppressed — duplicate within 5 min window"));
+        }
+
         Incident incident = incidentService.createIncident(payload);
+        agentDispatchService.dispatch(
+                incident.getId(),
+                payload.alertName(),
+                payload.severity(),
+                payload.service(),
+                payload.description()
+        );
 
         return ResponseEntity.accepted()
-                .body(Map.of(
-                        "status", "accepted",
-                        "incidentId", incident.getId()
-                ));
+                .body(Map.of("status", "accepted", "incidentId", incident.getId()));
     }
 
     @GetMapping("/incidents")
@@ -49,12 +61,14 @@ public class AlertController {
     public ResponseEntity<Incident> updateRunbook(
             @PathVariable String id,
             @RequestBody Map<String, Object> body) {
+
         Incident updated = incidentService.updateWithRunbook(
                 id,
                 (String) body.get("rootCause"),
                 (String) body.get("runbookDraft"),
                 body.get("confidenceScore") != null ? ((Number) body.get("confidenceScore")).doubleValue() : null
         );
+
         return ResponseEntity.ok(updated);
     }
 }
