@@ -1,12 +1,12 @@
-alert-gateway/target/
-alert-gateway/.mvn/
+alert_gateway/target/
+alert_gateway/.mvn/
 *.class
 *.jar
 
-agent-swarm/__pycache__/
-agent-swarm/.venv/
-agent-swarm/venv/
-agent-swarm/.env
+agent_swarm/__pycache__/
+agent_swarm/.venv/
+agent_swarm/venv/
+agent_swarm/.env
 *.pyc
 *.pyo
 
