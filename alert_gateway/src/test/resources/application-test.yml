@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  data:
+    redis:
+      timeout: 2000ms
+
+agent:
+  swarm:
+    url: http://localhost:9999
+
+jwt:
+  secret: incident-autopilot-secret-key-must-be-at-least-32-characters-long
+  expiration-ms: 86400000
