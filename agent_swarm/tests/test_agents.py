@@ -68,3 +68,69 @@ def test_analyze_logs_empty_logs_yields_low_confidence():
     assert analysis["confidence"] < 0.5, (
         f"Agent hallucinated on empty logs — confidence was {analysis['confidence']}"
     )
+
+
+@pytest.mark.integration
+def test_write_runbook_returns_valid_structure():
+    """
+    Full 3-agent chain: log analyst → pattern matcher → runbook writer.
+    The runbook must have all required keys with correct types.
+    """
+    from agents.runbook_writer import write_runbook
+    from agents.pattern_matcher import find_similar_incidents
+
+    state = {
+        "incident_id": "test-004",
+        "alert_name": "HighErrorRate",
+        "severity": "P1",
+        "service": "payment-service",
+        "log_snippet": None,
+    }
+
+    state = analyze_logs(state)
+    state = find_similar_incidents(state)
+    state = write_runbook(state)
+
+    assert "runbook" in state
+    runbook = state["runbook"]
+
+    required_keys = {
+        "title", "severity", "estimated_resolution_minutes",
+        "immediate_steps", "root_cause_explanation",
+        "prevention", "confidence"
+    }
+    assert required_keys.issubset(runbook.keys()), (
+        f"Missing keys: {required_keys - runbook.keys()}"
+    )
+    assert isinstance(runbook["immediate_steps"], list)
+    assert len(runbook["immediate_steps"]) >= 3
+    assert isinstance(runbook["estimated_resolution_minutes"], int)
+    assert 0.0 <= runbook["confidence"] <= 1.0
+    assert "confidence_score" in state
+
+
+@pytest.mark.integration
+def test_write_runbook_empty_logs_low_confidence():
+    """
+    When logs are empty, the final runbook confidence must stay below 0.6.
+    This is the guard against the LangGraph supervisor accepting a bad runbook.
+    """
+    from agents.runbook_writer import write_runbook
+    from agents.pattern_matcher import find_similar_incidents
+
+    state = {
+        "incident_id": "test-005",
+        "alert_name": "UnknownAlert",
+        "severity": "P2",
+        "service": "nonexistent-service",
+        "log_snippet": None,
+    }
+
+    state = analyze_logs(state)
+    state = find_similar_incidents(state)
+    state = write_runbook(state)
+
+    assert state["runbook"]["confidence"] < 0.6, (
+        f"Runbook writer should not be confident on empty logs — "
+        f"got {state['runbook']['confidence']}"
+    )
