@@ -68,10 +68,10 @@ jobs:
         working-directory: agent_swarm
         run: pip install -r requirements.txt
 
-      - name: Enable pgvector extension
+      - name: Run DB seed                          # ← replaces the old extension step
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d incident_db \
-            -c "CREATE EXTENSION IF NOT EXISTS vector;"
+            -f agent-swarm/tests/seed.sql
 
       - name: Run Python tests
         working-directory: agent_swarm
