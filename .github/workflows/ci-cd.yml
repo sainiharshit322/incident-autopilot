@@ -71,7 +71,7 @@ jobs:
       - name: Run DB seed                          # ← replaces the old extension step
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d incident_db \
-            -f agent-swarm/tests/seed.sql
+            -f agent_swarm/tests/seed.sql
 
       - name: Run Python tests
         working-directory: agent_swarm
