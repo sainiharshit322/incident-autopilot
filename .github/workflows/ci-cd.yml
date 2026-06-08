@@ -59,13 +59,13 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: agent-swarm/requirements.txt
+          cache-dependency-path: agent_swarm/requirements.txt
 
       - name: Install PostgreSQL client
         run: sudo apt-get install -y postgresql-client
 
       - name: Install dependencies
-        working-directory: agent-swarm
+        working-directory: agent_swarm
         run: pip install -r requirements.txt
 
       - name: Enable pgvector extension
@@ -74,7 +74,7 @@ jobs:
             -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
       - name: Run Python tests
-        working-directory: agent-swarm
+        working-directory: agent_swarm
         run: pytest tests/ -v
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
