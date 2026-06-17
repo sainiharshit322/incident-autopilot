@@ -70,7 +70,7 @@ def analyze_logs(state: dict) -> dict:
     the parsed JSON dict from the LLM.
     """
     llm = ChatGoogleGenerativeAI(
-        model="gemini-3-flash-preview",
+        model="gemini-3.1-flash-lite",
         google_api_key=os.getenv("GEMINI_API_KEY"),
         temperature=1.0,    # Required for Gemini 3+ models per langchain-google-genai docs
     )

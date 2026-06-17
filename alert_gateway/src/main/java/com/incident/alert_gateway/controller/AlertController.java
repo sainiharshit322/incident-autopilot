@@ -30,7 +30,7 @@ public class AlertController {
         log.info("Received alert: {} | severity: {} | service: {}", payload.alertName(), payload.severity(), payload.service());
 
         if (!deduplicationService.isNew(payload.alertName(), payload.service())) {
-            return ResponseEntity.accepted()
+            return ResponseEntity.status(208)
                     .body(Map.of("status", "deduplicated", "message", "Alert suppressed — duplicate within 5 min window"));
         }
 
