@@ -98,7 +98,7 @@ jobs:
           cache: maven
 
       - name: Pre-populate Maven cache
-        working-directory: alert-gateway
+        working-directory: alert_gateway
         run: mvn dependency:resolve -q
 
       - name: Run Trivy vulnerability scan
