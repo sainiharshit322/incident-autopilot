@@ -24,37 +24,6 @@ Rules:
 - Respond with JSON only. Any non-JSON response is a failure."""
 
 
-def fetch_recent_logs(service: str, alert_name: str) -> str:
-    """
-    Returns fake log lines for a given service.
-    In Week 2 Day 3+ this will be replaced with real log fetching.
-    """
-    fake_logs = {
-        "payment-service": (
-            "2024-01-15T10:23:01Z ERROR PaymentProcessor - "
-            "java.lang.NullPointerException: Cannot invoke method charge() on null object\n"
-            "2024-01-15T10:23:01Z ERROR PaymentProcessor - at PaymentProcessor.process(PaymentProcessor.java:87)\n"
-            "2024-01-15T10:23:02Z WARN  CircuitBreaker - payment-service circuit OPEN after 5 failures\n"
-            "2024-01-15T10:23:02Z ERROR Gateway - upstream payment-service returned 500 (attempt 3/3)"
-        ),
-        "auth-service": (
-            "2024-01-15T10:24:10Z ERROR AuthController - "
-            "io.lettuce.core.RedisConnectionException: Unable to connect to Redis at redis:6379\n"
-            "2024-01-15T10:24:10Z ERROR JwtFilter - Token validation failed: Redis unavailable\n"
-            "2024-01-15T10:24:11Z WARN  ConnectionPool - All 10 connections exhausted, queue depth 47\n"
-            "2024-01-15T10:24:12Z ERROR AuthController - Returning 503 to all auth requests"
-        ),
-        "api-gateway": (
-            "2024-01-15T10:25:00Z ERROR LoadBalancer - "
-            "No healthy upstream instances for service api-gateway\n"
-            "2024-01-15T10:25:00Z WARN  HealthCheck - 3/3 instances failing /health endpoint\n"
-            "2024-01-15T10:25:01Z ERROR K8s - OOMKilled: container api-gateway-pod-7f8b9 "
-            "exceeded memory limit 512Mi"
-        ),
-    }
-    return fake_logs.get(service, "")  # Empty string if service not in fake data
-
-
 def analyze_logs(state: dict) -> dict:
     """
     Agent 1: Log Analyst.
@@ -72,7 +41,7 @@ def analyze_logs(state: dict) -> dict:
     llm = ChatGoogleGenerativeAI(
         model="gemini-3.1-flash-lite",
         google_api_key=os.getenv("GEMINI_API_KEY"),
-        temperature=1.0,    # Required for Gemini 3+ models per langchain-google-genai docs
+        temperature=1.0,    
     )
 
     logs = state.get("log_snippet") or fetch_recent_logs(
@@ -104,7 +73,6 @@ def analyze_logs(state: dict) -> dict:
 
     raw_text = raw_text.strip()
 
-    # Strip markdown code fences if the model wraps JSON anyway
     if raw_text.startswith("```"):
         raw_text = raw_text.split("```")[1]
         if raw_text.startswith("json"):

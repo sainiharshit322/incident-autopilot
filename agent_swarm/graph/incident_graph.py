@@ -7,6 +7,7 @@ from langgraph.graph import StateGraph, START, END
 from agents.log_analyst import analyze_logs
 from agents.pattern_matcher import find_similar_incidents
 from agents.runbook_writer import write_runbook
+from tools.slack_notifier import send_incident_notification
 
 load_dotenv()
 
@@ -68,9 +69,9 @@ def increment_retry(state: IncidentState) -> IncidentState:
 
 async def publish_results(state: IncidentState) -> IncidentState:
     """
-    Calls back to Spring Boot PATCH /api/v1/incidents/{id}
-    to persist the runbook and confidence score.
-    Fails silently — the runbook is already in state regardless.
+    1. Calls Spring Boot PATCH /api/v1/incidents/{id} to persist the runbook.
+    2. Sends a Slack Block Kit notification.
+    Both steps fail silently — the runbook is already in state for the caller.
     """
     gateway_url = os.getenv("GATEWAY_URL", "http://localhost:8080")
     incident_id = state.get("incident_id")
@@ -83,6 +84,7 @@ async def publish_results(state: IncidentState) -> IncidentState:
         "status":          "INVESTIGATING",
     }
 
+    # ── 1. Callback to Spring Boot gateway ──────────────────────────────────
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.patch(
@@ -91,8 +93,14 @@ async def publish_results(state: IncidentState) -> IncidentState:
             )
             response.raise_for_status()
     except Exception as e:
-        # Log but don't crash — runbook is still in state for the caller
-        print(f"[publish_results] WARNING: callback to gateway failed: {e}")
+        print(f"[publish_results] WARNING: gateway callback failed: {e}")
+
+    # ── 2. Slack notification ────────────────────────────────────────────────
+    try:
+        await send_incident_notification(state)
+        print(f"[publish_results] Slack notification sent for incident {incident_id}")
+    except Exception as e:
+        print(f"[publish_results] WARNING: Slack notification failed: {e}")
 
     return state
 

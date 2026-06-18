@@ -19,7 +19,8 @@ in this exact structure — no markdown, no explanation, no code fences:
   "immediate_steps": [
     "<step 1 — specific, actionable command or action>",
     "<step 2>",
-    "<step 3 minimum, up to 6>"
+    "<step 3>",
+    "<step 4 minimum, up to 6>"
   ],
   "root_cause_explanation": "<2-3 sentences explaining what failed and why>",
   "prevention": "<one concrete prevention measure for the future>",

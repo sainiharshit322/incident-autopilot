@@ -11,3 +11,4 @@ pytest
 pytest-asyncio
 httpx
 python-dotenv
+slack-sdk>=3.31.0
