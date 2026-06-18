@@ -15,7 +15,7 @@ public class AgentDispatchService {
 
     private final WebClient.Builder webClientBuilder;
 
-    private static final String AGENT_SWARM_URL = "http://localhost:8001";
+    private static final String AGENT_SWARM_URL = "http://127.0.0.1:8001";
 
     @Async
     public void dispatch(String incidentId, String alertName, String severity, String service, String description){
@@ -24,13 +24,13 @@ public class AgentDispatchService {
         try{
             webClientBuilder.build()
                     .post()
-                    .uri(AGENT_SWARM_URL, "/analyze")
+                    .uri(AGENT_SWARM_URL + "/analyze")
                     .bodyValue(Map.of(
-                            "incidentId", incidentId,
-                            "alertName", alertName,
+                            "incident_id", incidentId,
+                            "alert_name", alertName,
                             "severity", severity,
                             "service", service,
-                            "description", description != null ? description : ""
+                            "log_snippet", description != null ? description : ""
                     ))
                     .retrieve()
                     .bodyToMono(String.class)
