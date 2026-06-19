@@ -57,7 +57,7 @@ public class AlertController {
         return ResponseEntity.ok(incidentService.findById(id));
     }
 
-    @PatchMapping("/incidents/{id}/runbook")
+    @PatchMapping("/incidents/{id}")
     public ResponseEntity<Incident> updateRunbook(
             @PathVariable String id,
             @RequestBody Map<String, Object> body) {
@@ -66,7 +66,8 @@ public class AlertController {
                 id,
                 (String) body.get("rootCause"),
                 (String) body.get("runbookDraft"),
-                body.get("confidenceScore") != null ? ((Number) body.get("confidenceScore")).doubleValue() : null
+                body.get("confidenceScore") != null ? ((Number) body.get("confidenceScore")).doubleValue() : null,
+                (String) body.get("status")
         );
 
         return ResponseEntity.ok(updated);

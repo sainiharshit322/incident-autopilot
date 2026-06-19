@@ -66,7 +66,7 @@ jobs:
         working-directory: agent_swarm
         run: pip install -r requirements.txt
 
-      - name: Run DB seed                       
+      - name: Run DB seed                        
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d incident_db \
             -f agent_swarm/tests/seed.sql

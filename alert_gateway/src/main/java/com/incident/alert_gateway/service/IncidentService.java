@@ -35,12 +35,13 @@ public class IncidentService {
                 .orElseThrow(() -> new RuntimeException("Incident not Found" + id));
     }
 
-    public Incident updateWithRunbook(String id, String rootCause, String runbookDraft, Double confidenceScore){
+    public Incident updateWithRunbook(String id, String rootCause, String runbookDraft, Double confidenceScore, String status){
 
         Incident incident = findById(id);
         incident.setRootCause(rootCause);
         incident.setRunbookDraft(runbookDraft);
         incident.setConfidenceScore(confidenceScore);
+        incident.setStatus(status);
         Incident updated = incidentRepository.save(incident);
         log.info("Updated incident [{}] with runbook (confidence: {})", id, confidenceScore);
 
