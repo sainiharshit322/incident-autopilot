@@ -66,11 +66,11 @@ jobs:
         working-directory: agent_swarm
         run: pip install -r requirements.txt
 
-      - name: Run DB seed                       
+      - name: Run DB seed                        
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d incident_db \
             -f agent_swarm/tests/seed.sql
 
       - name: Validate Python Environment (Skip Tests)
         working-directory: agent_swarm
-        run: echo "Skipping tests to preserve API limits"
+        run: echo "Skipping tests to preserve API limits. Dependencies and DB seeded successfully."
