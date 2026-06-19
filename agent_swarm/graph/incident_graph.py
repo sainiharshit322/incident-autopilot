@@ -83,8 +83,6 @@ async def publish_results(state: IncidentState) -> IncidentState:
         "confidenceScore": state.get("confidence_score", 0.0),
         "status":          "INVESTIGATING",
     }
-
-    # ── 1. Callback to Spring Boot gateway ──────────────────────────────────
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.patch(
@@ -95,7 +93,6 @@ async def publish_results(state: IncidentState) -> IncidentState:
     except Exception as e:
         print(f"[publish_results] WARNING: gateway callback failed: {e}")
 
-    # ── 2. Slack notification ────────────────────────────────────────────────
     try:
         await send_incident_notification(state)
         print(f"[publish_results] Slack notification sent for incident {incident_id}")
