@@ -73,4 +73,4 @@ jobs:
 
       - name: Validate Python Environment (Skip Tests)
         working-directory: agent_swarm
-        run: echo "Skipping tests to preserve API limits. Dependencies and DB seeded successfully."
+        run: echo "Skipping tests to preserve API limits"
