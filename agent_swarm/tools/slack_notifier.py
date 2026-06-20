@@ -10,6 +10,7 @@ def _build_blocks(state: dict) -> list:
     confidence     = state.get("confidence_score", 0.0)
     root_cause     = runbook.get("root_cause_explanation", "No root cause identified.")
     prevention     = runbook.get("prevention", "No prevention strategy provided.")
+    triage_note    = runbook.get("triage_note", "AI Swarm has completed initial triage and generated a runbook draft.")
     steps: list    = runbook.get("immediate_steps", [])
     top_4_steps    = steps[:4] if steps else ["No steps available."]
 
@@ -56,6 +57,14 @@ def _build_blocks(state: dict) -> list:
                 },
             ],
         },
+        # Triage Note
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Triage Note*\n{triage_note}",
+            },
+        },
         # Root cause
         {
             "type": "section",
@@ -97,6 +106,52 @@ def _build_blocks(state: dict) -> list:
             ],
         },
     ]
+
+async def send_status_update_notification(payload: dict) -> None:
+    token      = os.getenv("SLACK_BOT_TOKEN")
+    channel_id = os.getenv("SLACK_CHANNEL_ID")
+
+    if not token or not channel_id:
+        return
+
+    client = AsyncWebClient(token=token)
+    
+    blocks = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": f"✅ Incident {payload.get('status', 'CLOSED')} — {payload.get('alert_name', 'Unknown Alert')}",
+                "emoji": True,
+            },
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Resolution Note*\n{payload.get('resolution_note', 'No note provided.')}",
+            },
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Incident ID: `{payload.get('incident_id', 'N/A')}` | Notified by *Incident Autopilot*",
+                }
+            ],
+        },
+    ]
+
+    try:
+        await client.chat_postMessage(
+            channel=channel_id,
+            text=f"✅ Incident Closed: {payload.get('alert_name', 'Unknown')}",
+            blocks=blocks,
+        )
+    except Exception as e:
+        print(f"[send_status_update_notification] ERROR: {e}")
 
 
 async def send_incident_notification(state: dict) -> None:
