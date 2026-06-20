@@ -90,6 +90,17 @@ async def publish_results(state: IncidentState) -> IncidentState:
                 json=payload,
             )
             response.raise_for_status()
+
+            # Also update the status with the generated triage note
+            status_payload = {
+                "status": "INVESTIGATING",
+                "resolutionNote": runbook.get("triage_note", "AI Swarm has completed initial triage and generated a runbook draft.")
+            }
+            status_response = await client.patch(
+                f"{gateway_url}/api/v1/incidents/{incident_id}/status",
+                json=status_payload,
+            )
+            status_response.raise_for_status()
     except Exception as e:
         print(f"[publish_results] WARNING: gateway callback failed: {e}")
 
