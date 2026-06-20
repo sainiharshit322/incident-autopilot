@@ -24,6 +24,7 @@ in this exact structure — no markdown, no explanation, no code fences:
   ],
   "root_cause_explanation": "<2-3 sentences explaining what failed and why>",
   "prevention": "<one concrete prevention measure for the future>",
+  "triage_note": "<A concise 1-2 sentence note explaining that AI has triaged the incident and drafted a runbook. E.g. 'AI Swarm has completed initial triage and generated a runbook draft.'>",
   "confidence": <float between 0.0 and 1.0>
 }
 
