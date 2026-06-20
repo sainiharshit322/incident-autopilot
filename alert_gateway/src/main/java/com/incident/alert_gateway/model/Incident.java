@@ -30,6 +30,11 @@ public class Incident {
     @Column(nullable = false)
     private String status = "OPEN";
 
+    private LocalDateTime resolvedAt;
+
+    @Column(columnDefinition = "TEXT")
+    private String resolutionNote;
+
     @Column(columnDefinition = "TEXT")
     private String rootCause;
 
