@@ -2,6 +2,7 @@ package com.incident.alert_gateway.controller;
 
 import com.incident.alert_gateway.model.AlertPayload;
 import com.incident.alert_gateway.model.Incident;
+import com.incident.alert_gateway.model.StatusUpdatePayload;
 import com.incident.alert_gateway.service.AgentDispatchService;
 import com.incident.alert_gateway.service.AlertDeduplicationService;
 import com.incident.alert_gateway.service.IncidentService;
@@ -71,5 +72,29 @@ public class AlertController {
         );
 
         return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/incidents/{id}/status")
+    public ResponseEntity<Incident> updateStatus(
+            @PathVariable String id,
+            @Valid @RequestBody StatusUpdatePayload payload) {
+        Incident updated = incidentService.updateStatus(id, payload.status(), payload.resolutionNote());
+        
+        if ("CLOSED".equalsIgnoreCase(payload.status()) || "RESOLVED".equalsIgnoreCase(payload.status())) {
+            agentDispatchService.notifyStatusChange(id, updated.getAlertName(), payload.status(), payload.resolutionNote());
+        }
+        
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/incidents/{id}/close")
+    public ResponseEntity<Map<String, String>> closeIncident(
+            @PathVariable String id) {
+        Incident incident = incidentService.findById(id);
+        String problemStatement = incident.getAlertName();
+        // optionally append service/description if available, for now just use alert name
+        agentDispatchService.resolveIncident(id, problemStatement);
+        return ResponseEntity.accepted()
+                .body(Map.of("status", "accepted", "message", "Closing incident asynchronously with AI generated note"));
     }
 }
