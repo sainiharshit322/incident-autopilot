@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,6 +46,18 @@ public class IncidentService {
         Incident updated = incidentRepository.save(incident);
         log.info("Updated incident [{}] with runbook (confidence: {})", id, confidenceScore);
 
+        return updated;
+    }
+
+    public Incident updateStatus(String id, String status, String resolutionNote) {
+        Incident incident = findById(id);
+        incident.setStatus(status);
+        incident.setResolutionNote(resolutionNote);
+        if (status.equals("RESOLVED") || status.equals("CLOSED")) {
+            incident.setResolvedAt(LocalDateTime.now());
+        }
+        Incident updated = incidentRepository.save(incident);
+        log.info("Incident [{}] status changed to '{}'", id, status);
         return updated;
     }
 
