@@ -11,7 +11,6 @@
 - [Getting Started](#️-getting-started)
 - [Environment Variables](#-environment-variables)
 - [API Documentation](#-api-documentation)
-- [Screenshots](#-screenshots)
 - [Roadmap](#️-roadmap)
 - [Contributing](#-contributing)
 - [License](#-license)
