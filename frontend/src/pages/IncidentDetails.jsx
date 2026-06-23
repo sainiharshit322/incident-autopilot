@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getIncidentById, patchIncidentStatus, closeIncidentAi } from '../api/incidents';
+import { getIncidentById, patchIncidentStatus, closeIncidentAi, deleteIncident } from '../api/incidents';
 import toast from 'react-hot-toast';
-import { ArrowLeft, CheckCircle2, Sparkles, TerminalSquare, AlertTriangle, ShieldAlert, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Sparkles, TerminalSquare, AlertTriangle, ShieldAlert, Clock, Trash2 } from 'lucide-react';
 
 export default function IncidentDetails() {
   const { id } = useParams();
@@ -57,6 +57,17 @@ export default function IncidentDetails() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this incident?')) return;
+    try {
+      await deleteIncident(id);
+      toast.success('Incident deleted successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to delete incident');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -72,12 +83,20 @@ export default function IncidentDetails() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       {/* Header Actions */}
-      <button 
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-2"
-      >
-        <ArrowLeft size={16} /> Back
-      </button>
+      <div className="flex justify-between items-center mb-2">
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
+        <button 
+          onClick={handleDelete}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-400 bg-red-400/10 hover:bg-red-400/20 border border-red-400/20 hover:border-red-400/30 rounded-lg transition-colors"
+        >
+          <Trash2 size={16} /> Delete Incident
+        </button>
+      </div>
 
       {/* Main Details Card */}
       <div className="glass-card overflow-hidden">

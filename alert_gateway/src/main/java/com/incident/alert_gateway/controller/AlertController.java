@@ -97,4 +97,10 @@ public class AlertController {
         return ResponseEntity.accepted()
                 .body(Map.of("status", "accepted", "message", "Closing incident asynchronously with AI generated note"));
     }
+
+    @DeleteMapping("/incidents/{id}")
+    public ResponseEntity<Void> deleteIncident(@PathVariable String id) {
+        incidentService.deleteIncident(id);
+        return ResponseEntity.noContent().build();
+    }
 }
