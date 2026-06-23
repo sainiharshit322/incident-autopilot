@@ -65,4 +65,10 @@ public class IncidentService {
 
         return incidentRepository.findAll();
     }
+
+    public void deleteIncident(String id) {
+        Incident incident = findById(id);
+        incidentRepository.delete(incident);
+        log.info("Deleted incident [{}]", id);
+    }
 }
