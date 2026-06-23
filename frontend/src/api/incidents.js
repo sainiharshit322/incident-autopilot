@@ -25,3 +25,14 @@ export const closeIncidentAi = async (id) => {
   const { data } = await apiClient.post(`/incidents/${id}/close`);
   return data;
 };
+
+// For simulation/demo purposes
+export const createAlert = async (payload) => {
+  const { data } = await apiClient.post('/alerts/webhook', payload);
+  return data;
+};
+
+export const deleteIncident = async (id) => {
+  const { data } = await apiClient.delete(`/incidents/${id}`);
+  return data;
+};
