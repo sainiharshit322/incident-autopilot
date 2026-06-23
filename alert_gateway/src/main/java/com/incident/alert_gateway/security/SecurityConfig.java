@@ -45,7 +45,7 @@ public CorsConfigurationSource corsConfigurationSource() {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**", "/api/v1/auth/**", "/api/v1/alerts/webhook").permitAll()
+                        .requestMatchers("/actuator/**", "/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/incidents/*", "/api/v1/incidents/*/status").permitAll()
                         .anyRequest().authenticated()
                 )
